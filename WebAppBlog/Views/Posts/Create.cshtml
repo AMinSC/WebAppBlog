@@ -19,7 +19,17 @@
             </div>
             <div class="form-group">
                 <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
+
+                @* 에디터와 미리보기를 감싸는 컨테이너 *@
+                <div class="markdown-container">
+                    @* 마크다운 입력 영역 *@
+                    <div class="markdown-editor">
+                        <textarea asp-for="Content" id="ContentEditor" class="form-control"></textarea>
+                    </div>
+                    @* 마크다운 미리보기 영역 *@
+                    <div class="markdown-preview" id="MarkdownPreview">
+                    </div>
+                </div>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -40,7 +50,38 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
     <script>
         var easyMDE = new EasyMDE({element: document.getElementById('Content')});
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. 필요한 HTML 요소들을 가져옵니다.
+            const editor = document.getElementById('ContentEditor');
+            const preview = document.getElementById('MarkdownPreview');
+
+            // 2. 마크다운을 변환하고 미리보기 영역에 표시하는 함수
+            function updatePreview() {
+                // 에디터의 현재 마크다운 텍스트를 가져옵니다.
+                const markdownText = editor.value;
+
+                // marked.parse()로 마크다운을 HTML로 변환합니다.
+                const dirtyHtml = marked.parse(markdownText);
+
+                // (중요) DOMPurify.sanitize()로 변환된 HTML에서 잠재적인
+                // XSS 공격 스크립트를 제거하여 안전하게 만듭니다.
+                const sanitizedHtml = DOMPurify.sanitize(dirtyHtml);
+
+                // 안전하게 처리된 HTML을 미리보기 영역에 표시합니다.
+                preview.innerHTML = sanitizedHtml;
+            }
+
+            // 3. 텍스트 입력 영역에 'input' 이벤트 리스너를 추가합니다.
+            // 'input' 이벤트는 키보드 입력, 붙여넣기 등 모든 입력에 반응합니다.
+            editor.addEventListener('input', updatePreview);
+
+            // 4. 페이지가 처음 로드될 때도 미리보기를 한 번 실행합니다.
+            // (Edit 페이지에서 기존 내용을 바로 보여주기 위함)
+            updatePreview();
+        });
     </script>
 }

@@ -20,3 +20,28 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+.markdown-container {
+    display: flex;
+    gap: 20px; /* 에디터와 미리보기 사이 간격 */
+    height: 500px; /* 컨테이너 전체 높이 지정 */
+}
+
+.markdown-editor, .markdown-preview {
+    flex: 1; /* 1:1 비율로 공간 차지 */
+    width: 50%;
+}
+
+    .markdown-editor textarea {
+        height: 100%; /* 부모 높이에 맞게 꽉 채움 */
+        resize: none; /* 크기 조절 핸들 제거 */
+    }
+
+.markdown-preview {
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    padding: 15px;
+    background-color: #f8f9fa;
+    overflow-y: auto; /* 내용이 길어지면 스크롤바 생성 */
+}
