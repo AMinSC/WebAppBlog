@@ -15,5 +15,6 @@ namespace WebAppBlog.Data
         }
 
         public DbSet<WebAppBlog.Models.Movie> Movie { get; set; } = default!;
+        public DbSet<WebAppBlog.Models.Post> Post { get; set; } = default!;
     }
 }
