@@ -18,3 +18,10 @@
 프론트: Razor   
 데이터베이스: SQL Server (LocalDB)   
 
+
+## ERD
+
+**[[ERD Cloud](https://www.erdcloud.com/d/xFkPLkyNxSqN8CP4a)]**   
+![ERD Table](asset/image.png)   
+
+> PostLinks 테이블의 경우 **복합 기본 키(Composite Primary Key)**   
