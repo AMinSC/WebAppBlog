@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using WebAppBlog.Data;
 namespace WebAppBlog
 {
     public class Program
@@ -5,9 +8,11 @@ namespace WebAppBlog
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<WebAppBlogContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("WebAppBlogContext") ?? throw new InvalidOperationException("Connection string 'WebAppBlogContext' not found.")));
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
 
             var app = builder.Build();
 
@@ -20,11 +25,14 @@ namespace WebAppBlog
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseStaticFiles();
+
+            app.MapRazorPages();
 
             app.MapControllerRoute(
                 name: "default",
