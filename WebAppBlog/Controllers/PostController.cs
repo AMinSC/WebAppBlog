@@ -6,35 +6,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBlog.Data;
+using WebAppBlog.Data.DAL;
 using WebAppBlog.Models;
 
 namespace WebAppBlog.Controllers
 {
-    public class PostsController : Controller
+    public class PostController : Controller
     {
-        private readonly WebAppBlogContext _context;
+        private readonly IPostRepository _postRepository;
 
-        public PostsController(WebAppBlogContext context)
+        public PostController(IPostRepository postRepository)
         {
-            _context = context;
+            _postRepository = postRepository;
         }
 
-        // GET: Posts
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Post.ToListAsync());
+            return View(_postRepository.GetAllPosts());
         }
 
-        // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var post = _postRepository.GetPostById(id.Value);
             if (post == null)
             {
                 return NotFound();
@@ -43,7 +41,6 @@ namespace WebAppBlog.Controllers
             return View(post);
         }
 
-        // GET: Posts/Create
         public IActionResult Create()
         {
             return View();
@@ -54,26 +51,26 @@ namespace WebAppBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
+        public IActionResult Create([Bind("Id,Title,Content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(post);
-                await _context.SaveChangesAsync();
+                post.CreatedAt = DateTime.UtcNow;
+                _postRepository.InsertPost(post);
+                _postRepository.Save();
                 return RedirectToAction(nameof(Index));
             }
             return View(post);
         }
 
-        // GET: Posts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Post.FindAsync(id);
+            var post = _postRepository.GetPostById(id);
             if (post == null)
             {
                 return NotFound();
@@ -86,7 +83,7 @@ namespace WebAppBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
+        public IActionResult Edit(int id, [Bind("Id,Title,Content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
         {
             if (id != post.Id)
             {
@@ -97,35 +94,27 @@ namespace WebAppBlog.Controllers
             {
                 try
                 {
-                    _context.Update(post);
-                    await _context.SaveChangesAsync();
+                    post.UpdatedAt = DateTime.UtcNow;
+                    _postRepository.UpdatePost(post);
+                    _postRepository.Save();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostExists(post.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View(post);
         }
 
-        // GET: Posts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var post = _postRepository.GetPostById(id);
             if (post == null)
             {
                 return NotFound();
@@ -134,24 +123,18 @@ namespace WebAppBlog.Controllers
             return View(post);
         }
 
-        // POST: Posts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var post = await _context.Post.FindAsync(id);
+            var post = _postRepository.GetPostById(id);
             if (post != null)
             {
-                _context.Post.Remove(post);
+                _postRepository.DeletePost(post);
             }
 
-            await _context.SaveChangesAsync();
+            _postRepository.Save();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool PostExists(int id)
-        {
-            return _context.Post.Any(e => e.Id == id);
         }
     }
 }

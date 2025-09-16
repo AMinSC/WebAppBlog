@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WebAppBlog.Data;
+using WebAppBlog.Data.DAL;
 namespace WebAppBlog
 {
     public class Program
@@ -13,6 +14,7 @@ namespace WebAppBlog
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+            builder.Services.AddScoped<IPostRepository, PostRepository>();
 
             var app = builder.Build();
 
