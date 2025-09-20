@@ -9,7 +9,7 @@
 <h4>Post</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div>
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -19,7 +19,16 @@
             </div>
             <div class="form-group">
                 <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
+                <div class="editor-container">
+                    <div class="editor-pane">
+                        @* 왼쪽: 마크다운 입력 공간 *@
+                        <textarea asp-for="Content" id="markdown-editor" class="form-control"></textarea>
+                    </div>
+                    <div class="preview-pane">
+                        @* 오른쪽: 변환된 HTML이 표시될 공간 *@
+                        <div id="markdown-preview"></div>
+                    </div>
+                </div>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -40,4 +49,27 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editor = document.getElementById('markdown-editor');
+            const preview = document.getElementById('markdown-preview');
+
+            // 마크다운을 HTML로 변환하고 미리보기 패널에 렌더링
+            function updatePreview() {
+                const markdownText = editor.value;
+                const htmlText = marked.parse(markdownText);
+                preview.innerHTML = htmlText;
+            }
+
+            // <textarea>에 'input' 이벤트가 발생할 때마다
+            // updatePreview 함수를 실행
+            editor.addEventListener('input', updatePreview);
+
+            // 페이지가 처음 로드될 때도 한 번 실행,
+            // 기존에 있던 내용을 변환해 줌
+            updatePreview();
+        });
+    </script>
 }
