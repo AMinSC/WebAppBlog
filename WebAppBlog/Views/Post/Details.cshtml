@@ -1,4 +1,4 @@
-﻿@model WebAppBlog.Models.Post
+﻿@model WebAppBlog.ViewModels.PostDetailViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -6,42 +6,19 @@
 
 <h1>Details</h1>
 
-<div>
-    <h4>Post</h4>
+<article class="blog-post">
+    <header>
+        <h2 class="blog-post-title">@Model.Title</h2>
+        <p class="blog-post-meta">
+            @Model.CreatedAt.ToString("yyyy년 MM월 dd일")
+        </p>
+    </header>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Content)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Content)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UrlSlug)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UrlSlug)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-    </dl>
-</div>
+    <div class="markdown-body">
+        @Html.Raw(Model.Content)
+	</div>
+    <hr />
+</article>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

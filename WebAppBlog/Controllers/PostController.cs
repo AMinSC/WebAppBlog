@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Markdig;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using WebAppBlog.Data;
 using WebAppBlog.Data.DAL;
 using WebAppBlog.Models;
+using WebAppBlog.ViewModels;
 
 namespace WebAppBlog.Controllers
 {
@@ -38,7 +40,19 @@ namespace WebAppBlog.Controllers
                 return NotFound();
             }
 
-            return View(post);
+            var htmlContent = Markdown.ToHtml(post.Content ?? "**There is no content.**");
+
+            var viewModel = new PostDetailViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = htmlContent,
+                UrlSlug = post.UrlSlug,
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Create()
