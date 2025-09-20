@@ -4,26 +4,18 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
-
+<hr />
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">작성하기</a>
 </p>
+<hr />
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UrlSlug)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
+            <th>제목</th>
+            <th>키워드</th>
+            <th>생성일</th>
+            <th>수정일</th>
             <th></th>
         </tr>
     </thead>
@@ -37,15 +29,15 @@
                 @Html.DisplayFor(modelItem => item.UrlSlug)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
+                @item.CreatedAt.ToString("yyyy-MM-dd")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
+                @(item.UpdatedAt?.ToString("yyyy-MM-dd") ?? "N/A")
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">수정하기</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">자세히 보기</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">삭제하기</a>
             </td>
         </tr>
 }

@@ -4,8 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
+<hr />
 <article class="blog-post">
     <header>
         <h2 class="blog-post-title">@Model.Title</h2>
@@ -20,6 +19,6 @@
     <hr />
 </article>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">수정하기</a> |
+    <a asp-action="Index">돌아가기</a>
 </div>
