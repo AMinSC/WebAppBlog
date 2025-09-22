@@ -48,6 +48,7 @@ namespace WebAppBlog.Controllers
                 Title = post.Title,
                 Content = htmlContent,
                 UrlSlug = post.UrlSlug,
+                CategoryId = post.CategoryId,
                 CreatedAt = post.CreatedAt,
                 UpdatedAt = post.UpdatedAt
             };

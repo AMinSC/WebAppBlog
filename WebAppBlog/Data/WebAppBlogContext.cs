@@ -14,7 +14,7 @@ namespace WebAppBlog.Data
         {
         }
 
-        public DbSet<WebAppBlog.Models.Post> Post { get; set; } = default!;
-        public DbSet<WebAppBlog.Models.PostLinks> PostLinks { get; set; } = default!;
+        public DbSet<Post> Post { get; set; } = default!;
+        public DbSet<Categories> Categories { get; set; } = default!;
     }
 }
