@@ -15,6 +15,7 @@ namespace WebAppBlog
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
+            builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 
             var app = builder.Build();
 

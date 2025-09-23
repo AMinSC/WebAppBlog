@@ -16,10 +16,12 @@ namespace WebAppBlog.Controllers
     public class PostController : Controller
     {
         private readonly IPostRepository _postRepository;
+        private readonly ICategoriesRepository _categoriesRepository;
 
-        public PostController(IPostRepository postRepository)
+        public PostController(IPostRepository postRepository, ICategoriesRepository categoriesRepository)
         {
             _postRepository = postRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
         public IActionResult Index()
@@ -58,24 +60,62 @@ namespace WebAppBlog.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var viewModel = new PostEditViewModel
+            {
+                Categories = new SelectList(_categoriesRepository.GetAllCategories().ToList(), "Id", "Name")
+            };  
+            return View(viewModel);
         }
 
-        // POST: Posts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Id,Title,Content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
+        public IActionResult Create(PostEditViewModel viewModel)
         {
+            if (viewModel.CategoryId == null && string.IsNullOrWhiteSpace(viewModel.NewCategoryName))
+            {
+                ModelState.AddModelError("", "기존 카테고리를 선택하거나 새 카테고리 이름을 입력해야 합니다.");
+            }
+
             if (ModelState.IsValid)
             {
-                post.CreatedAt = DateTime.UtcNow;
+                int categoryId;
+
+                if (!string.IsNullOrWhiteSpace(Request.Form["NewCategoryName"]))
+                {
+                    var newCategory = new Categories
+                    {
+                        CategoryName = Request.Form["NewCategoryName"]!
+                    };
+                    _categoriesRepository.InsertCategory(newCategory);
+                    _categoriesRepository.Save();
+                    categoryId = newCategory.Id;
+                }
+                else if (int.TryParse(Request.Form["CategoryId"], out int selectedCategoryId))
+                {
+                    categoryId = selectedCategoryId;
+                }
+                else
+                {
+                    ModelState.AddModelError("CategoryId", "Please select a category or enter a new category name.");
+                    return View(viewModel);
+                }
+
+                Post post = new Post()
+                {
+                    Title = viewModel.Title,
+                    Content = viewModel.Content,
+                    UrlSlug = viewModel.UrlSlug,
+                    CategoryId = categoryId,
+                    Category = _categoriesRepository.GetCategoryById(categoryId),
+                    CreatedAt = DateTime.UtcNow
+                };
+
                 _postRepository.InsertPost(post);
                 _postRepository.Save();
                 return RedirectToAction(nameof(Index));
             }
-            return View(post);
+            viewModel.Categories = new SelectList(_categoriesRepository.GetAllCategories().ToList(), "Id", "Name");
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Edit(int id)

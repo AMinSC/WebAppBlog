@@ -11,7 +11,7 @@ namespace WebAppBlog.ViewModels
         public string Content { get; set; } = string.Empty;
         public string UrlSlug { get; set; } = string.Empty;
         [Display(Name = "기존 카테고리 선택")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         [ValidateNever]
         public SelectList? Categories { get; set; }
         [Display(Name = "새 카테고리 이름")]

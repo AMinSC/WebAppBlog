@@ -2,7 +2,7 @@
 
 namespace WebAppBlog.Data.DAL
 {
-    public class CategoriesRepository
+    public class CategoriesRepository : ICategoriesRepository
     {
         private readonly WebAppBlogContext _context;
 
