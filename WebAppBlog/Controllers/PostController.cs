@@ -62,7 +62,7 @@ namespace WebAppBlog.Controllers
         {
             var viewModel = new PostEditViewModel
             {
-                Categories = new SelectList(_categoriesRepository.GetAllCategories().ToList(), "Id", "Name")
+                Categories = new SelectList(_categoriesRepository.GetAllCategories(), "Id", "CategoryName")
             };  
             return View(viewModel);
         }
