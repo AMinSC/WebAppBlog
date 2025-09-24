@@ -27,6 +27,7 @@ namespace WebAppBlog.Data.DAL
         {
             _context.Post.Add(post);
         }
+
         public void UpdatePost(Post post)
         {
             _context.Post.Update(post);
