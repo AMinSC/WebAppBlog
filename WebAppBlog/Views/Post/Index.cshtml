@@ -1,9 +1,18 @@
-﻿@model IEnumerable<WebAppBlog.Models.Post>
+﻿@model IEnumerable<WebAppBlog.ViewModels.PostSummaryViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Create";
 }
-
+<h1>
+    @if (ViewData["CategoryName"] != null)
+    {
+        <span class="badge bg-secondary">@ViewData["CategoryName"]</span> @:글 목록
+    }
+    else
+    {
+        @:전체 글 목록
+    }
+</h1>
 <hr />
 <p>
     <a asp-action="Create">작성하기</a>
@@ -13,9 +22,7 @@
     <thead>
         <tr>
             <th>제목</th>
-            <th>키워드</th>
             <th>생성일</th>
-            <th>수정일</th>
             <th></th>
         </tr>
     </thead>
@@ -26,13 +33,7 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UrlSlug)
-            </td>
-            <td>
                 @item.CreatedAt.ToString("yyyy-MM-dd")
-            </td>
-            <td>
-                @(item.UpdatedAt?.ToString("yyyy-MM-dd") ?? "N/A")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">수정하기</a> |
