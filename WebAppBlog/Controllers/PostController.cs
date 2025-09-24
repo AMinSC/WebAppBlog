@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAppBlog.Data;
-using WebAppBlog.Data.DAL;
 using WebAppBlog.Models;
 using WebAppBlog.ViewModels;
 
@@ -15,18 +14,16 @@ namespace WebAppBlog.Controllers
 {
     public class PostController : Controller
     {
-        private readonly IPostRepository _postRepository;
-        private readonly ICategoriesRepository _categoriesRepository;
+        private readonly WebAppBlogContext _context;
 
-        public PostController(IPostRepository postRepository, ICategoriesRepository categoriesRepository)
+        public PostController(WebAppBlogContext context)
         {
-            _postRepository = postRepository;
-            _categoriesRepository = categoriesRepository;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_postRepository.GetAllPosts());
+            return View(await _context.Post.ToListAsync());
         }
 
         public IActionResult Details(int? id)
@@ -36,7 +33,9 @@ namespace WebAppBlog.Controllers
                 return NotFound();
             }
 
-            var post = _postRepository.GetPostById(id.Value);
+            var post = _context.Post
+                .Include(p => p.Category)
+                .FirstOrDefault(m => m.Id == id);
             if (post == null)
             {
                 return NotFound();
@@ -62,7 +61,7 @@ namespace WebAppBlog.Controllers
         {
             var viewModel = new PostEditViewModel
             {
-                Categories = new SelectList(_categoriesRepository.GetAllCategories(), "Id", "CategoryName")
+                Categories = new SelectList(_context.Categories, "Id", "CategoryName")
             };  
             return View(viewModel);
         }
@@ -86,8 +85,8 @@ namespace WebAppBlog.Controllers
                     {
                         CategoryName = Request.Form["NewCategoryName"]!
                     };
-                    _categoriesRepository.InsertCategory(newCategory);
-                    _categoriesRepository.Save();
+                    _context.Categories.Add(newCategory);
+                    _context.SaveChanges();
                     categoryId = newCategory.Id;
                 }
                 else if (int.TryParse(Request.Form["CategoryId"], out int selectedCategoryId))
@@ -106,15 +105,15 @@ namespace WebAppBlog.Controllers
                     Content = viewModel.Content,
                     UrlSlug = viewModel.UrlSlug,
                     CategoryId = categoryId,
-                    Category = _categoriesRepository.GetCategoryById(categoryId),
+                    Category = _context.Categories.Find(categoryId),
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _postRepository.InsertPost(post);
-                _postRepository.Save();
+                _context.Post.Add(post);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
-            viewModel.Categories = new SelectList(_categoriesRepository.GetAllCategories().ToList(), "Id", "Name");
+            viewModel.Categories = new SelectList(_context.Categories, "Id", "Name");
             return View(viewModel);
         }
 
@@ -125,7 +124,7 @@ namespace WebAppBlog.Controllers
                 return NotFound();
             }
 
-            var post = _postRepository.GetPostById(id);
+            var post = _context.Post.Find(id);
             if (post == null)
             {
                 return NotFound();
@@ -150,8 +149,8 @@ namespace WebAppBlog.Controllers
                 try
                 {
                     post.UpdatedAt = DateTime.UtcNow;
-                    _postRepository.UpdatePost(post);
-                    _postRepository.Save();
+                    _context.Update(post);
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -169,7 +168,9 @@ namespace WebAppBlog.Controllers
                 return NotFound();
             }
 
-            var post = _postRepository.GetPostById(id);
+            var post = _context.Post
+                .Include(p => p.Category)
+                .FirstOrDefault(m => m.Id == id);
             if (post == null)
             {
                 return NotFound();
@@ -182,13 +183,13 @@ namespace WebAppBlog.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var post = _postRepository.GetPostById(id);
+            var post = _context.Post.Find(id);
             if (post != null)
             {
-                _postRepository.DeletePost(post);
+                _context.Post.Remove(post);
             }
 
-            _postRepository.Save();
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
     }
