@@ -21,9 +21,31 @@ namespace WebAppBlog.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? slug = null)
         {
-            return View(await _context.Post.ToListAsync());
+            var postsQuery = _context.Post.Include(p => p.Category).AsQueryable();
+            if (!string.IsNullOrEmpty(slug))
+            {
+                var category = _context.Categories.FirstOrDefault(c => c.CategoryName == slug);
+                if (category != null)
+                {
+                    postsQuery = postsQuery.Where(p => p.CategoryId == category.Id);
+                    ViewData["CategoryName"] = category.CategoryName;
+                }
+            }
+
+            var posts = postsQuery
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new PostSummaryViewModel
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    CategoryName = p.Category.CategoryName,
+                    CreatedAt = p.CreatedAt
+                })
+                .ToListAsync();
+
+            return View(await posts);
         }
 
         public IActionResult Details(int? id)
