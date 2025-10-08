@@ -23,9 +23,3 @@
 
 **[[ERD Cloud](https://www.erdcloud.com/d/xFkPLkyNxSqN8CP4a)]**
 
-## 해결해야할 문제
-
-- **Slug(Keyword) 자동 변환**: 작성된 글의 키워드를 자동 변환하여 DB Table Field값으로 저장      
-- ~~**LLM 접목**: 궁금한 키워드 포스팅이 없을 경우, LLM으로 대체하여 제공~~   
-  - Issue 작성 완료
-
