@@ -121,11 +121,14 @@ namespace WebAppBlog.Controllers
                     return View(viewModel);
                 }
 
+                string? slug = Request.Form["Title"];
+                slug = slug?.ToLower().Replace(' ', '-');
+
                 Post post = new Post()
                 {
                     Title = viewModel.Title,
                     Content = viewModel.Content,
-                    UrlSlug = viewModel.UrlSlug,
+                    UrlSlug = slug,
                     CategoryId = categoryId,
                     Category = _context.Categories.Find(categoryId),
                     CreatedAt = DateTime.UtcNow
@@ -151,25 +154,35 @@ namespace WebAppBlog.Controllers
             {
                 return NotFound();
             }
-            return View(post);
+            PostEditViewModel viewModel = new PostEditViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = post.Content,
+                UrlSlug = post.UrlSlug,
+                CategoryId = post.CategoryId
+            };
+            return View(viewModel);
         }
 
-        // POST: Posts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Title,Content,UrlSlug,CreatedAt,UpdatedAt")] Post post)
+        public IActionResult Edit(int id, PostEditViewModel viewModel)
         {
-            if (id != post.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
 
+            var post = _context.Post.Find(id);
             if (ModelState.IsValid)
             {
                 try
                 {
+                    post.Title = viewModel.Title;
+                    post.Content = viewModel.Content;
+                    post.UrlSlug = viewModel.Title.ToLower().Replace(' ', '-');
+                    post.CategoryId = viewModel.CategoryId ?? post.CategoryId;
                     post.UpdatedAt = DateTime.UtcNow;
                     _context.Update(post);
                     _context.SaveChanges();
@@ -180,7 +193,7 @@ namespace WebAppBlog.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(post);
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Delete(int id)
